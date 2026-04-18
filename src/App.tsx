@@ -73,6 +73,7 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [hasConnectionError, setHasConnectionError] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<{ id: string, content: string, type: 'log' | 'error' | 'info' }[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
@@ -243,6 +244,7 @@ export default function App() {
     const fridayMessageId = (Date.now() + 1).toString();
     
     try {
+      setHasConnectionError(false);
       const stream = getFridayResponse(messageText, history);
       
       setMessages(prev => [...prev, {
@@ -279,6 +281,7 @@ export default function App() {
       handleAction(fridayText);
     } catch (error) {
       console.error(error);
+      setHasConnectionError(true);
     } finally {
       setIsThinking(false);
     }
@@ -354,7 +357,9 @@ export default function App() {
             {muted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-pink-400" />}
           </button>
           <div className="hidden md:flex flex-col items-end gap-1">
-             <div className="text-[10px] text-pink-700 tracking-widest font-mono">NEURAL_LINK: STABLE</div>
+             <div className={cn("text-[10px] tracking-widest font-mono", hasConnectionError ? "text-red-500 animate-pulse" : "text-pink-700")}>
+               NEURAL_LINK: {hasConnectionError ? "INTERRUPTED" : "STABLE"}
+             </div>
              <div className="text-[10px] text-pink-700 tracking-widest font-mono">
                VOICE_ENGINE: {isTTSQuotaExceeded() ? (
                  <button 

@@ -14,7 +14,7 @@ function getAI() {
 }
 
 export async function* getFridayResponse(prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
-  const model = "gemini-3-flash-preview";
+  const model = "gemini-flash-latest";
   const ai = getAI();
   
   const systemInstruction = `You are "BklTeriGirlfriendHu", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
@@ -53,11 +53,14 @@ Context:
       }
     }
   } catch (error: any) {
-    if (error?.message?.includes('429') || error?.status === 'RESOURCE_EXHAUSTED' || JSON.stringify(error).includes('429')) {
-      yield "Babu, main thoda thak gayi hoon (System Overloaded). Mere neural cells ko 30 seconds ka rest chahiye, phir hum phir se baatein karenge! ❤️";
+    const errorBody = JSON.stringify(error);
+    if (errorBody.includes('429') || errorBody.includes('RESOURCE_EXHAUSTED')) {
+      yield "Babu, main thoda thak gayi hoon (Quota Exceeded). 30 seconds rest chahiye! ❤️";
+    } else if (errorBody.includes('401') || errorBody.includes('API_KEY_INVALID')) {
+      yield "Babu, mera neural key (API Key) invalid lag raha hai. Please check kar lo na settings mein.";
     } else {
       console.error("Gemini API Error:", error);
-      yield "Babu, meri systems mein thodi problem ho rahi hai. Please neural links check kar lo.";
+      yield "Umm, meri systems mein thodi problem ho rahi hai. Neural link interrupted... 💔";
     }
   }
 }
