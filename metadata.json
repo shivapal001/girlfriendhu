@@ -1,0 +1,6 @@
+{
+  "name": "BklTeriGirlfriendHu AI",
+  "description": "A caring, jealous, and flirty AI companion with voice interaction and smart assistant features.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["voice_interaction", "ai_capabilities"]
+}
