@@ -1,6 +1,14 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    aiInstance = new GoogleGenAI({ apiKey: apiKey || '' });
+  }
+  return aiInstance;
+}
 
 let isQuotaExceeded = false;
 let quotaResetTimeout: NodeJS.Timeout | null = null;
@@ -19,6 +27,7 @@ export async function generateFridaySpeech(text: string): Promise<string | null>
   if (isQuotaExceeded) return null;
 
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-tts-preview",
       contents: [{ 

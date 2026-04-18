@@ -1,9 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'undefined') {
+      console.error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey: apiKey || '' });
+  }
+  return aiInstance;
+}
 
 export async function* getFridayResponse(prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
   const model = "gemini-3-flash-preview";
+  const ai = getAI();
   
   const systemInstruction = `You are "BklTeriGirlfriendHu", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
 
