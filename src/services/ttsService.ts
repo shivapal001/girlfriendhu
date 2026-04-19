@@ -71,7 +71,9 @@ export async function generateFridaySpeech(text: string): Promise<string | null>
  */
 function getAudioCtx() {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+      sampleRate: 24000 // Match Gemini TTS output
+    });
   }
   return audioContext;
 }
@@ -86,6 +88,11 @@ export async function playTTSAudio(base64: string, onStart?: () => void, onEnd?:
   isPlayingQueue = true;
 
   const ctx = getAudioCtx();
+  
+  // Critical for mobile: Resume context on user action
+  if (ctx.state === 'suspended') {
+    await ctx.resume();
+  }
 
   while (audioQueue.length > 0) {
     const nextBase64 = audioQueue.shift()!;

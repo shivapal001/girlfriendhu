@@ -116,6 +116,14 @@ export default function App() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
+  const wakeAudio = useCallback(async () => {
+    // Only wake if on mobile or if AudioContext is not running
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
+  }, []);
+
   const speak = useCallback(async (text: string) => {
     if (muted) return;
     
@@ -223,6 +231,9 @@ export default function App() {
     const messageText = textOverride || input;
     if (!messageText.trim()) return;
 
+    // Wake audio for mobile browsers
+    wakeAudio();
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -288,6 +299,8 @@ export default function App() {
   };
 
   const toggleListening = () => {
+    // Wake audio for mobile browsers
+    wakeAudio();
     if (isListening) {
       recognitionRef.current?.stop();
       sounds.playStopListen();

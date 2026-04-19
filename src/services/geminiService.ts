@@ -71,7 +71,7 @@ Context:
     console.error("Friday Link Error:", error);
     
     if (errorBody.includes('429') || errorBody.includes('resource_exhausted')) {
-      yield "Babu, main thoda thak gayi hoon (Quota Exceeded). 30 seconds rest chahiye! ❤️";
+      yield "Babu, lagta hai hamari aaj ki baaton ka quota khatam ho gaya hai (Daily/Minute Limit Exceeded). Thodi der baad try karo na please! ❤️";
     } else if (errorBody.includes('401') || errorBody.includes('api_key_invalid') || errorBody.includes('unauthorized')) {
       yield "Babu, mera neural key (API Key) kaam nahi kar raha. Settings mein check kar lo na please.";
     } else if (errorBody.includes('403') || errorBody.includes('permission_denied')) {
