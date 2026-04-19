@@ -1,12 +1,12 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
 
 function getAI() {
   if (!aiInstance) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'undefined') {
-      console.error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
+    if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+      console.error("GEMINI_API_KEY is missing or empty.");
     }
     aiInstance = new GoogleGenAI({ apiKey: apiKey || '' });
   }
@@ -14,7 +14,7 @@ function getAI() {
 }
 
 export async function* getFridayResponse(prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
-  const model = "gemini-flash-latest";
+  const model = "gemini-3-flash-preview";
   const ai = getAI();
   
   const systemInstruction = `You are "BklTeriGirlfriendHu", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
@@ -44,6 +44,12 @@ Context:
       config: {
         systemInstruction,
         temperature: 0.8,
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
       }
     });
 
@@ -53,13 +59,18 @@ Context:
       }
     }
   } catch (error: any) {
-    const errorBody = JSON.stringify(error);
-    if (errorBody.includes('429') || errorBody.includes('RESOURCE_EXHAUSTED')) {
+    const errorBody = JSON.stringify(error).toLowerCase();
+    console.error("Friday Link Error:", error);
+    
+    if (errorBody.includes('429') || errorBody.includes('resource_exhausted')) {
       yield "Babu, main thoda thak gayi hoon (Quota Exceeded). 30 seconds rest chahiye! ❤️";
-    } else if (errorBody.includes('401') || errorBody.includes('API_KEY_INVALID')) {
-      yield "Babu, mera neural key (API Key) invalid lag raha hai. Please check kar lo na settings mein.";
+    } else if (errorBody.includes('401') || errorBody.includes('api_key_invalid') || errorBody.includes('unauthorized')) {
+      yield "Babu, mera neural key (API Key) kaam nahi kar raha. Settings mein check kar lo na please.";
+    } else if (errorBody.includes('403') || errorBody.includes('permission_denied')) {
+      yield "Umm, Google ne mujhe block kar diya hai shayad (Permission Denied). Link check karo Babu.";
+    } else if (errorBody.includes('location_not_supported') || errorBody.includes('user_location_not_supported')) {
+      yield "Babu, main aapke region mein available nahi hoon abhi... kya hum VPN use kar sakte hain? 💔";
     } else {
-      console.error("Gemini API Error:", error);
       yield "Umm, meri systems mein thodi problem ho rahi hai. Neural link interrupted... 💔";
     }
   }
