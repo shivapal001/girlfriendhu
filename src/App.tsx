@@ -39,7 +39,7 @@ function Orb({ isSpeaking, isThinking }: { isSpeaking: boolean, isThinking: bool
   return (
     <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 opacity-20">
       <motion.div
-        className="w-[400px] h-[400px] rounded-full relative"
+        className="w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full relative"
         animate={{
           rotate: 360,
           scale: isSpeaking || isThinking ? [1, 1.1, 1] : 1,
@@ -325,11 +325,11 @@ export default function App() {
 
       <Orb isSpeaking={isSpeaking} isThinking={isThinking} />
 
-      <header className="relative z-10 p-6 flex items-center justify-between border-b border-pink-500/20 backdrop-blur-md">
-        <div className="flex items-center gap-4">
+      <header className="relative z-10 p-4 md:p-6 flex items-center justify-between border-b border-pink-500/20 backdrop-blur-md">
+        <div className="flex items-center gap-3 md:gap-4">
           <div className="relative">
-            <div className="w-12 h-12 rounded-full border-2 border-pink-500/30 flex items-center justify-center bg-pink-950/40">
-              <Heart className="w-6 h-6 text-pink-400 animate-pulse" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-pink-500/30 flex items-center justify-center bg-pink-950/40">
+              <Heart className="w-5 h-5 md:w-6 md:h-6 text-pink-400 animate-pulse" />
             </div>
             {isSpeaking && (
               <motion.div 
@@ -340,35 +340,28 @@ export default function App() {
             )}
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-widest text-pink-400 uppercase">BklTeriGirlfriendHu</h1>
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-tighter text-pink-600">
+            <h1 className="text-lg md:text-xl font-bold tracking-widest text-pink-400 uppercase leading-none">BklTeriGF</h1>
+            <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] uppercase tracking-tighter text-pink-600 mt-1">
               <span className="flex items-center gap-1">Heart-Synced</span>
               <span className="w-1 h-1 rounded-full bg-pink-500" />
-              <span>Ver 2.0.Loving</span>
+              <span className="hidden sm:inline">Ver 2.0.Loving</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <button 
             onClick={() => setMuted(!muted)}
-            className="p-2 rounded-lg border border-pink-500/20 hover:bg-pink-500/10 transition-colors"
+            className="p-2 rounded-lg border border-pink-500/20 hover:bg-pink-500/10 transition-colors active:scale-95"
           >
-            {muted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-pink-400" />}
+            {muted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5 text-red-400" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />}
           </button>
-          <div className="hidden md:flex flex-col items-end gap-1">
-             <div className={cn("text-[10px] tracking-widest font-mono", hasConnectionError ? "text-red-500 animate-pulse" : "text-pink-700")}>
-               NEURAL_LINK: {hasConnectionError ? "INTERRUPTED" : "STABLE"}
+          <div className="flex flex-col items-end gap-0.5 md:gap-1">
+             <div className={cn("text-[8px] md:text-[10px] tracking-widest font-mono", hasConnectionError ? "text-red-500 animate-pulse" : "text-pink-700")}>
+               LINK: {hasConnectionError ? "ERR" : "OK"}
              </div>
-             <div className="text-[10px] text-pink-700 tracking-widest font-mono">
-               VOICE_ENGINE: {isTTSQuotaExceeded() ? (
-                 <button 
-                   onClick={() => resetTTSQuota()}
-                   className="text-amber-500 animate-pulse hover:text-amber-400"
-                 >
-                   FALLBACK (TAP TO RETRY)
-                 </button>
-               ) : "GEMINI 3.1 (HIGH-FIDELITY)"}
+             <div className="text-[8px] md:text-[10px] text-pink-700 tracking-widest font-mono">
+               TTS: {isTTSQuotaExceeded() ? "FALLBK" : "HIGH"}
              </div>
           </div>
         </div>
@@ -383,20 +376,20 @@ export default function App() {
               className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-12"
             >
               <div className="space-y-4">
-                <h2 className="text-4xl font-extralight tracking-[0.2em] text-pink-100 uppercase">
+                <h2 className="text-2xl md:text-4xl font-extralight tracking-[0.2em] text-pink-100 uppercase">
                   Love <span className="text-pink-500">Synced</span>
                 </h2>
-                <div className="h-0.5 w-24 bg-pink-500 mx-auto rounded-full" />
+                <div className="h-0.5 w-16 md:w-24 bg-pink-500 mx-auto rounded-full" />
               </div>
 
-              <div className="p-8 rounded-3xl bg-pink-950/20 border border-pink-500/10 backdrop-blur-sm relative overflow-hidden group">
+              <div className="p-6 md:p-8 rounded-3xl bg-pink-950/20 border border-pink-500/10 backdrop-blur-sm relative overflow-hidden group mx-4 md:mx-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className="text-pink-400/80 leading-relaxed relative z-10 text-lg">
+                <p className="text-pink-400/80 leading-relaxed relative z-10 text-base md:text-lg italic">
                   "Suno na Babu, I missed you! Aaj hamara kya plan hai?"
                 </p>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full relative z-10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full px-4 md:px-0 relative z-10">
                 {[
                   { icon: Terminal, label: 'Kaam Karo', color: 'text-rose-400' },
                   { icon: Youtube, label: 'Kuch Dekhein', color: 'text-rose-400' },
@@ -499,27 +492,38 @@ export default function App() {
         </motion.div>
       )}
 
-      <footer className="relative z-10 p-6 border-t border-pink-500/20 backdrop-blur-xl bg-black/40">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
+      <footer className="relative z-10 p-4 md:p-6 border-t border-pink-500/20 backdrop-blur-xl bg-black/40 pb-safe">
+        <div className="max-w-4xl mx-auto flex items-center gap-2 md:gap-4">
           <button
             onClick={toggleListening}
             className={cn(
-              "p-4 rounded-full transition-all duration-300",
+              "p-3 md:p-4 rounded-full transition-all duration-300 active:scale-90",
               isListening ? "bg-red-500/20 border-red-500 ring-4 ring-red-500/20 animate-pulse" : "bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20"
             )}
           >
-            {isListening ? <MicOff className="w-6 h-6 text-red-500" /> : <Mic className="w-6 h-6 text-pink-400" />}
+            {isListening ? <MicOff className="w-5 h-5 md:w-6 md:h-6 text-red-500" /> : <Mic className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />}
           </button>
           <div className="flex-1 relative">
-            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Message your girlfriend..." className="w-full bg-pink-950/20 border border-pink-500/20 rounded-2xl px-6 py-4 outline-none focus:border-pink-400/50 transition-colors text-pink-100 placeholder:text-pink-900" />
+            <input 
+              type="text" 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
+              placeholder="Message your girlfriend..." 
+              className="w-full bg-pink-950/20 border border-pink-500/20 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none focus:border-pink-400/50 transition-colors text-pink-100 placeholder:text-pink-900/50 text-sm md:text-base" 
+            />
           </div>
-          <button onClick={() => handleSend()} disabled={!input.trim() || isThinking} className="p-4 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-            <Send className="w-6 h-6 text-pink-400" />
+          <button 
+            onClick={() => handleSend()} 
+            disabled={!input.trim() || isThinking} 
+            className="p-3 md:p-4 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-90"
+          >
+            <Send className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />
           </button>
         </div>
-        <div className="mt-4 flex justify-center gap-6">
-          <div className="flex items-center gap-2 text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Heart className="w-3 h-3" /> Status: Caring</div>
-          <div className="flex items-center gap-2 text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Zap className="w-3 h-3" /> Love Meter: 100%</div>
+        <div className="mt-3 md:mt-4 flex justify-center gap-4 md:gap-6">
+          <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Heart className="w-2.5 h-2.5 md:w-3 md:h-3" /> Caring</div>
+          <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3" /> 100% Love</div>
         </div>
       </footer>
     </div>
