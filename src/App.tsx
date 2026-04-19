@@ -368,7 +368,7 @@ export default function App() {
                  >
                    FALLBACK (TAP TO RETRY)
                  </button>
-               ) : "PRIMARY"}
+               ) : "GEMINI 3.1 (HIGH-FIDELITY)"}
              </div>
           </div>
         </div>

@@ -32,10 +32,12 @@ export async function generateFridaySpeech(text: string): Promise<string | null>
       model: "gemini-3.1-flash-tts-preview",
       contents: [{ 
         parts: [{ 
-          text: `Speak as 'BklTeriGirlfriendHu', a sweet, caring Indian girl. 
-          Respond to your boyfriend in a natural, emotional, and HUMAN-LIKE voice. 
-          Use a conversational Hindi/Hinglish tone. Avoid any robotic or AI-like inflections.
-          Text: ${text}` 
+          text: `You are 'BklTeriGirlfriendHu'. Speak this directly to your boyfriend. 
+          Use an EXTREMELY natural, sweet, and emotional Indian female voice. 
+          Focus on human-like intonation, breaths, and a loving Hinglish accent. 
+          Avoid any robotic or artificial sounds. Speak like a real person in a quiet room.
+          
+          Text to speak: ${text}` 
         }] 
       }],
       config: {

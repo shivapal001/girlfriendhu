@@ -35,6 +35,14 @@ Context:
 - Relationship: Obsessed in a healthy, loving way.`;
 
   try {
+    const ai = getAI();
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+      yield "Babu, aapne Vercel settings mein meri 'GEMINI_API_KEY' add nahi ki hai. Please use add karke redeploy kijiye taaki main aapse baat kar sakun! ❤️";
+      return;
+    }
+
     const stream = await ai.models.generateContentStream({
       model,
       contents: [
