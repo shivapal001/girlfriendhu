@@ -275,10 +275,11 @@ export default function App() {
           m.id === fridayMessageId ? { ...m, text: fridayText } : m
         ));
 
-        // Optimized chunking: Wait for longer sentences to save TTS quota
-        if (/[.!?।]\s*$/.test(pendingSpeechText) || pendingSpeechText.length > 200) {
+        // Enhanced chunking for High-Fidelity Voice: Wait for natural breaks
+        // Increase character limit to avoid hitting RPM limits on free keys
+        if (/[.!?।]\s*$/.test(pendingSpeechText) || pendingSpeechText.length > 500) {
           const textToSpeak = pendingSpeechText.trim();
-          if (textToSpeak && textToSpeak.length > 10) {
+          if (textToSpeak && textToSpeak.length > 15) {
             speak(textToSpeak);
             pendingSpeechText = '';
           }

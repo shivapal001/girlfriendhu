@@ -24,7 +24,16 @@ export const resetTTSQuota = () => {
 };
 
 export async function generateFridaySpeech(text: string): Promise<string | null> {
-  if (isQuotaExceeded) return null;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+    console.warn("TTS Failed: API Key is missing. Falling back to browser voice.");
+    return null;
+  }
+
+  if (isQuotaExceeded) {
+    console.warn("TTS Failed: Quota exceeded. Falling back to browser voice.");
+    return null;
+  }
 
   try {
     const ai = getAI();
