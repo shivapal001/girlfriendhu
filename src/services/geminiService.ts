@@ -14,7 +14,7 @@ function getAI() {
 }
 
 export async function* getFridayResponse(prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
-  const model = "gemini-3-flash-preview";
+  const model = "gemini-flash-latest";
   const ai = getAI();
   
   const systemInstruction = `You are "BklTeriGirlfriendHu", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
@@ -71,7 +71,9 @@ Context:
     } else if (errorBody.includes('location_not_supported') || errorBody.includes('user_location_not_supported')) {
       yield "Babu, main aapke region mein available nahi hoon abhi... kya hum VPN use kar sakte hain? 💔";
     } else {
-      yield "Umm, meri systems mein thodi problem ho rahi hai. Neural link interrupted... 💔";
+      console.error("Critical Gemini API Error:", error);
+      const errMsg = error?.message || error?.status || "Unknown Connection Failure";
+      yield `Umm, meri systems mein thodi problem ho rahi hai. Neural link interrupted: ${errMsg} 💔`;
     }
   }
 }
