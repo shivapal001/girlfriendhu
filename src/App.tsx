@@ -14,13 +14,24 @@ import {
   Shield,
   Zap,
   LayoutGrid,
-  Heart
+  Heart,
+  Image,
+  Info,
+  Phone,
+  Video,
+  MoreHorizontal,
+  Search,
+  X,
+  Camera,
+  ChevronLeft,
+  PlusCircle,
+  Smile
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from './lib/utils';
-import { getFridayResponse } from './services/geminiService';
+import { getFridayResponse, setAIServicePersona } from './services/geminiService';
 import { sounds } from './services/soundService';
-import { generateFridaySpeech, playTTSAudio, stopAllSpeech, isTTSQuotaExceeded, resetTTSQuota } from './services/ttsService';
+import { generateFridaySpeech, playTTSAudio, stopAllSpeech, isTTSQuotaExceeded, resetTTSQuota, setTTSServicePersona } from './services/ttsService';
 
 // --- Types ---
 interface Message {
@@ -65,6 +76,99 @@ function Orb({ isSpeaking, isThinking }: { isSpeaking: boolean, isThinking: bool
   );
 }
 
+const themes = {
+  youAndMe: {
+    name: 'You & Me',
+    bg: 'bg-[#000000]',
+    bubble: 'bg-gradient-to-tr from-[#9137cc] via-[#cb20a4] to-[#f7992c]',
+    headerBg: 'bg-black/90',
+    text: 'text-white',
+    accent: 'text-white',
+    preview: 'from-[#b324b3] via-[#ff2975] to-[#ff9051]',
+    wallpaper: 'https://storage.googleapis.com/static.mira.ai/artifact_attachments%2F1715341595166_40213d29.png'
+  },
+  instagram: {
+    name: 'Instagram',
+    bg: 'bg-black',
+    bubble: 'bg-gradient-to-tr from-[#9137cc] via-[#cb20a4] to-[#f7992c]',
+    headerBg: 'bg-black/80',
+    text: 'text-white',
+    accent: 'text-pink-500',
+    preview: 'from-[#9137cc] via-[#cb20a4] to-[#f7992c]',
+    wallpaper: 'https://storage.googleapis.com/static.mira.ai/artifact_attachments%2F1715339673412_f6bd7be3.png'
+  },
+  loveTree: {
+    name: 'Love Garden',
+    bg: 'bg-[#4c0519]',
+    bubble: 'bg-gradient-to-tr from-[#fb7185] via-[#e11d48] to-[#9f1239]',
+    headerBg: 'bg-[#4c0519]/80',
+    text: 'text-rose-50',
+    accent: 'text-rose-400',
+    preview: 'from-[#fb7185] via-[#e11d48] to-[#9f1239]',
+    wallpaper: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1000'
+  },
+  loveScript: {
+    name: 'Love Script',
+    bg: 'bg-[#0f172a]',
+    bubble: 'bg-gradient-to-tr from-[#6366f1] via-[#8b5cf6] to-[#d946ef]',
+    headerBg: 'bg-[#0f172a]/80',
+    text: 'text-zinc-50',
+    accent: 'text-indigo-400',
+    preview: 'from-[#6366f1] via-[#8b5cf6] to-[#d946ef]',
+    wallpaper: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=1000'
+  },
+  blackLove: {
+    name: 'Black Love',
+    bg: 'bg-[#0a0a0a]',
+    bubble: 'bg-white text-black',
+    headerBg: 'bg-black/90',
+    text: 'text-white',
+    accent: 'text-zinc-400',
+    preview: 'from-zinc-100 via-zinc-200 to-white',
+    wallpaper: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000'
+  },
+  kawaii: {
+    name: 'Kawaii Friends',
+    bg: 'bg-[#eff6ff]',
+    bubble: 'bg-gradient-to-tr from-[#60a5fa] via-[#3b82f6] to-[#1d4ed8]',
+    headerBg: 'bg-[#eff6ff]/80',
+    text: 'text-blue-900',
+    accent: 'text-blue-500',
+    preview: 'from-[#60a5fa] via-[#3b82f6] to-[#1d4ed8]',
+    wallpaper: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=1000'
+  },
+  rainyLove: {
+    name: 'Rainy Love',
+    bg: 'bg-[#e2e8f0]',
+    bubble: 'bg-zinc-800',
+    headerBg: 'bg-[#e2e8f0]/80',
+    text: 'text-zinc-900',
+    accent: 'text-zinc-600',
+    preview: 'from-zinc-400 via-zinc-500 to-zinc-600',
+    wallpaper: 'https://storage.googleapis.com/static.mira.ai/artifact_attachments%2F1715339673516_1456a644.png'
+  },
+  dancingSouls: {
+    name: 'Dancing Souls',
+    bg: 'bg-black',
+    bubble: 'bg-white/10 backdrop-blur-md border border-white/20',
+    headerBg: 'bg-black/80',
+    text: 'text-white',
+    accent: 'text-white',
+    preview: 'from-zinc-800 via-zinc-900 to-black',
+    wallpaper: 'https://storage.googleapis.com/static.mira.ai/artifact_attachments%2F1715339673413_6455ffb2.png'
+  },
+  heartSymphony: {
+    name: 'Heart Symphony',
+    bg: 'bg-[#450a0a]',
+    bubble: 'bg-gradient-to-tr from-[#f43f5e] via-[#e11d48] to-[#be123c]',
+    headerBg: 'bg-[#450a0a]/80',
+    text: 'text-rose-50',
+    accent: 'text-rose-400',
+    preview: 'from-[#f43f5e] via-[#e11d48] to-[#be123c]',
+    wallpaper: 'https://storage.googleapis.com/static.mira.ai/artifact_attachments%2F1715339673516_1456a644.png'
+  }
+};
+
 // --- Component ---
 export default function App() {
   const [input, setInput] = useState('');
@@ -73,8 +177,92 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [gfName, setGfName] = useState('ZUBY');
+  const [gfUsername, setGfUsername] = useState('zuby_2006');
+  const [gfPfp, setGfPfp] = useState('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200&h=200');
+  const [chatWallpaper, setChatWallpaper] = useState<string | null>(null);
+  const [theme, setTheme] = useState<keyof typeof themes>('youAndMe');
+  const [isOnboarded, setIsOnboarded] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const cloudinaryCloudName = 'de7wbghmy';
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const wallpaperInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePfpUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Local preview first
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setGfPfp(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Attempt Cloudinary upload (needs unsigned preset, assuming 'ml_default' or user will configure)
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default'); // Common default, might fail if not configured
+
+    try {
+      const resp = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await resp.json();
+      if (data.secure_url) {
+        setGfPfp(data.secure_url);
+        setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: 'PFP uploaded to Cloudinary!', type: 'info' }]);
+      }
+    } catch (err) {
+      console.error('Cloudinary upload failed:', err);
+      setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: 'Cloudinary upload failed (Preset might be missing). Using local preview.', type: 'warn' }]);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleWallpaperUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setChatWallpaper(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default');
+
+    try {
+      const resp = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await resp.json();
+      if (data.secure_url) {
+        setChatWallpaper(data.secure_url);
+        setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: 'Wallpaper uploaded!', type: 'info' }]);
+      }
+    } catch (err) {
+      console.error('Cloudinary upload failed:', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  useEffect(() => {
+    setAIServicePersona(gfName);
+    setTTSServicePersona(gfName);
+  }, [gfName]);
   const [hasConnectionError, setHasConnectionError] = useState(false);
-  const [terminalOutput, setTerminalOutput] = useState<{ id: string, content: string, type: 'log' | 'error' | 'info' }[]>([]);
+  const [terminalOutput, setTerminalOutput] = useState<{ id: string, content: string, type: 'log' | 'error' | 'info' | 'warn' }[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
   // Voice Recognition
@@ -202,11 +390,14 @@ export default function App() {
   const runJS = (code: string) => {
     setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: '> Executing Script...', type: 'info' }]);
     
-    const logs: string[] = [];
+    const logs: { content: string, type: 'log' | 'error' | 'warn' }[] = [];
     const customConsole = {
-      log: (...args: any[]) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')),
-      error: (...args: any[]) => logs.push('ERROR: ' + args.join(' ')),
-      warn: (...args: any[]) => logs.push('WARN: ' + args.join(' ')),
+      log: (...args: any[]) => logs.push({ 
+        content: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '),
+        type: 'log'
+      }),
+      error: (...args: any[]) => logs.push({ content: args.join(' '), type: 'error' }),
+      warn: (...args: any[]) => logs.push({ content: args.join(' '), type: 'warn' }),
     };
 
     try {
@@ -216,8 +407,8 @@ export default function App() {
       if (logs.length > 0) {
         setTerminalOutput(prev => [...prev, ...logs.map(l => ({ 
           id: (Date.now() + Math.random()).toString(), 
-          content: l, 
-          type: 'log' as const 
+          content: l.content, 
+          type: l.type 
         }))]);
       } else {
         setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: 'Execution finished (no output).', type: 'info' }]);
@@ -329,215 +520,435 @@ export default function App() {
   }, [isThinking]);
 
   return (
-    <div className="min-h-screen bg-[#0a0205] text-pink-50 font-sans selection:bg-pink-500/30 overflow-hidden flex flex-col">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.08),transparent_70%)]" />
-        <div className="absolute inset-0 bg-grid opacity-20" />
-        <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-pink-500/50 to-transparent" />
-        <div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-pink-500/50 to-transparent" />
+    <div className={cn("min-h-screen font-sans selection:bg-pink-500/30 flex flex-col overflow-hidden relative", themes[theme].bg, themes[theme].text)}>
+      {/* Dynamic Background Effect */}
+      <div className={cn("fixed inset-0 pointer-events-none z-0", themes[theme].bg)}>
+        {(chatWallpaper || (themes[theme] as any).wallpaper) && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-all duration-700" 
+            style={{ 
+              backgroundImage: `url(${chatWallpaper || (themes[theme] as any).wallpaper})`,
+              filter: theme === 'youAndMe' ? 'brightness(1) saturate(1.1)' : 'brightness(0.7) saturate(1.2)'
+            }} 
+          />
+        )}
+        <AnimatePresence>
+          {isSpeaking && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.2 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-pink-900/10 to-black"
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       <Orb isSpeaking={isSpeaking} isThinking={isThinking} />
 
-      <header className="relative z-10 p-4 md:p-6 flex items-center justify-between border-b border-pink-500/20 backdrop-blur-md">
-        <div className="flex items-center gap-3 md:gap-4">
-          <div className="relative">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-pink-500/30 flex items-center justify-center bg-pink-950/40">
-              <Heart className="w-5 h-5 md:w-6 md:h-6 text-pink-400 animate-pulse" />
-            </div>
-            {isSpeaking && (
-              <motion.div 
-                className="absolute inset-0 rounded-full border-2 border-pink-400"
-                animate={{ scale: [1, 1.5], opacity: [1, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-sm bg-[#1c1c1e] rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+            >
+              <div className="p-6 space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-white">Edit Profile</h3>
+                  <button onClick={() => setIsSettingsOpen(false)} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+                    <X className="w-6 h-6 text-zinc-400" />
+                  </button>
+                </div>
+
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-full bg-zinc-800 overflow-hidden border-2 border-white/10">
+                      <img src={gfPfp} alt="Preview" className="w-full h-full object-cover" />
+                      {isUploading && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <Zap className="w-6 h-6 text-yellow-400 animate-pulse" />
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-0 right-0 p-2 bg-pink-500 rounded-full shadow-lg hover:bg-pink-600 transition-colors"
+                    >
+                      <Camera className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handlePfpUpload}
+                  />
+                  <p className="text-xs text-zinc-500">Change Profile Photo</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500 uppercase px-1">Name</label>
+                    <input 
+                      type="text" 
+                      value={gfName} 
+                      onChange={(e) => setGfName(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-3 outline-none focus:border-pink-500/50 transition-colors text-white"
+                      placeholder="Display Name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500 uppercase px-1">Username</label>
+                    <input 
+                      type="text" 
+                      value={gfUsername} 
+                      onChange={(e) => setGfUsername(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/5 rounded-xl px-4 py-3 outline-none focus:border-pink-500/50 transition-colors text-zinc-400"
+                      placeholder="Username"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-zinc-500 uppercase px-1">Chat Theme</label>
+                  <div className="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
+                    {(Object.keys(themes) as Array<keyof typeof themes>).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => {
+                          setTheme(t);
+                          // Clear custom wallpaper if switching to a theme that has one
+                          if ((themes[t] as any).wallpaper) setChatWallpaper(null);
+                        }}
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-xl transition-all border-2",
+                          theme === t ? "border-pink-500 bg-white/5" : "border-transparent bg-zinc-900/50 hover:bg-white/5"
+                        )}
+                      >
+                        <div className={cn("w-8 h-8 rounded-full bg-gradient-to-tr shadow-inner", (themes[t] as any).preview)} />
+                        <span className="text-[13px] font-medium text-zinc-300 truncate">{(themes[t] as any).name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase px-1">Chat Wallpaper</label>
+                  <div className="flex items-center gap-3">
+                    <div 
+                      onClick={() => wallpaperInputRef.current?.click()}
+                      className="flex-1 h-12 bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors"
+                    >
+                      <Image className="w-5 h-5 text-zinc-400 mr-2" />
+                      <span className="text-[13px] text-zinc-400">Choose Custom...</span>
+                    </div>
+                    {chatWallpaper && (
+                      <button 
+                        onClick={() => setChatWallpaper(null)}
+                        className="px-3 h-12 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={wallpaperInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleWallpaperUpload}
+                  />
+                </div>
+
+                <button 
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-colors mt-2"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Onboarding Overlay */}
+      <AnimatePresence>
+        {!isOnboarded && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 text-white"
+          >
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="w-full max-w-sm space-y-8"
+            >
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
+                  <Heart className="w-8 h-8 text-white" fill="white" />
+                </div>
+                <h1 className="text-3xl font-bold tracking-tight">Setup your chat</h1>
+                <p className="text-zinc-500 text-[15px]">Customize your partner's profile</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-center mb-6">
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="relative w-24 h-24 rounded-full bg-zinc-900 border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-800 transition-colors overflow-hidden"
+                  >
+                    {gfPfp ? (
+                      <img src={gfPfp} className="w-full h-full object-cover" alt="Preview" />
+                    ) : (
+                      <>
+                        <Camera className="w-6 h-6 text-zinc-500 mb-1" />
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase">Photo</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase px-1">Partner Name</label>
+                    <input 
+                      type="text" 
+                      value={gfName}
+                      onChange={(e) => setGfName(e.target.value)}
+                      placeholder="e.g. ZUBY"
+                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-pink-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase px-1">Username</label>
+                    <input 
+                      type="text" 
+                      value={gfUsername}
+                      onChange={(e) => setGfUsername(e.target.value)}
+                      placeholder="e.g. zuby_2006"
+                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-pink-500 transition-colors shadow-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase px-1">Chat Wallpaper</label>
+                    <button 
+                      onClick={() => wallpaperInputRef.current?.click()}
+                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between hover:bg-zinc-800 transition-colors"
+                    >
+                      <span className="text-zinc-400 text-[14px]">{chatWallpaper ? 'Custom set' : 'Choose wallpaper...'}</span>
+                      <Image className="w-5 h-5 text-zinc-500" />
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    if (gfName.trim() && gfUsername.trim()) setIsOnboarded(true);
+                  }}
+                  className="w-full py-4 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform mt-4 disabled:opacity-50"
+                  disabled={!gfName.trim() || !gfUsername.trim()}
+                >
+                  Start Chatting
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>      {/* Instagram DM Header */}
+      <header className={cn("sticky border-b border-white/5 top-0 z-30 flex items-center justify-between px-4 h-16 transition-colors", themes[theme].headerBg)}>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-1 -ml-1 hover:bg-white/5 rounded-full transition-colors"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+          <div className="relative cursor-pointer group flex items-center gap-3" onClick={() => setIsSettingsOpen(true)}>
+            <div className="w-[38px] h-[38px] rounded-full overflow-hidden border border-white/10 bg-zinc-800">
+              <img 
+                src={gfPfp} 
+                alt={gfName}
+                className={cn("w-full h-full object-cover transition-transform duration-500", isSpeaking && "scale-110")}
               />
-            )}
-          </div>
-          <div>
-            <h1 className="text-lg md:text-xl font-bold tracking-widest text-pink-400 uppercase leading-none">BklTeriGF</h1>
-            <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] uppercase tracking-tighter text-pink-600 mt-1">
-              <span className="flex items-center gap-1">Heart-Synced</span>
-              <span className="w-1 h-1 rounded-full bg-pink-500" />
-              <span className="hidden sm:inline">Ver 2.0.Loving</span>
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <h1 className="text-[15px] font-bold tracking-tight leading-none uppercase">{gfName} ⚡</h1>
+              </div>
+              <span className="text-[11px] text-zinc-500 font-medium leading-none mt-1">
+                {gfUsername}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4">
-          <button 
-            onClick={() => setMuted(!muted)}
-            className="p-2 rounded-lg border border-pink-500/20 hover:bg-pink-500/10 transition-colors active:scale-95"
-          >
-            {muted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5 text-red-400" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />}
+        <div className="flex items-center gap-5">
+          <button onClick={() => setMuted(!muted)} className="text-white">
+            {muted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
           </button>
-          <div className="flex flex-col items-end gap-0.5 md:gap-1">
-             <div className={cn("text-[8px] md:text-[10px] tracking-widest font-mono", hasConnectionError ? "text-red-500 animate-pulse" : "text-pink-700")}>
-               LINK: {hasConnectionError ? "ERR" : "OK"}
-             </div>
-             <div className="text-[8px] md:text-[10px] text-pink-700 tracking-widest font-mono">
-               TTS: {isTTSQuotaExceeded() ? "FALLBK" : "HIGH"}
-             </div>
-          </div>
+          <button className="text-white">
+            <PlusCircle className="w-6 h-6" />
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto relative z-10 p-4 md:p-8 space-y-6 scroll-smooth">
-        <AnimatePresence initial={false}>
-          {messages.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-12"
-            >
-              <div className="space-y-4">
-                <h2 className="text-2xl md:text-4xl font-extralight tracking-[0.2em] text-pink-100 uppercase">
-                  Love <span className="text-pink-500">Synced</span>
-                </h2>
-                <div className="h-0.5 w-16 md:w-24 bg-pink-500 mx-auto rounded-full" />
-              </div>
+      {/* Message List */}
+      <main className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 relative z-10 scrollbar-hide py-6 custom-scrollbar">
+        <div className="flex flex-col items-center mb-10 pt-4 flex-none opacity-90">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-[3.5px] mb-4 relative group cursor-pointer" onClick={() => setIsSettingsOpen(true)}>
+            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden relative">
+               <img 
+                  src={gfPfp} 
+                  alt={gfName}
+                  className="w-full h-full object-cover"
+                />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold tracking-tight">{gfName} ⚡</h2>
+          <p className="text-[13px] text-zinc-500 mt-1 font-medium">{gfUsername} · Instagram</p>
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="px-6 py-1.5 bg-[#2a2a2a] rounded-lg text-[13px] font-semibold hover:bg-zinc-800 transition-colors mt-4"
+          >
+            View profile
+          </button>
+        </div>
 
-              <div className="p-6 md:p-8 rounded-3xl bg-pink-950/20 border border-pink-500/10 backdrop-blur-sm relative overflow-hidden group mx-4 md:mx-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className="text-pink-400/80 leading-relaxed relative z-10 text-base md:text-lg italic">
-                  "Suno na Babu, I missed you! Aaj hamara kya plan hai?"
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full px-4 md:px-0 relative z-10">
-                {[
-                  { icon: Terminal, label: 'Kaam Karo', color: 'text-rose-400' },
-                  { icon: Youtube, label: 'Kuch Dekhein', color: 'text-rose-400' },
-                  { icon: Music, label: 'Gana Bajao', color: 'text-rose-400' },
-                  { icon: MessageSquare, label: 'Baat Karein', color: 'text-rose-400' },
-                ].map((item, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => {
-                      const prompts = [
-                        "Jaan, help me with this code",
-                        "YouTube pe kuch romantic dikhao na",
-                        "Koi mast gana bajao na mere liye",
-                        "Tell me you love me"
-                      ];
-                      handleSend(prompts[idx]);
-                    }}
-                    className="p-4 rounded-xl bg-pink-950/40 border border-pink-500/20 hover:border-pink-400 transition-all flex flex-col items-center gap-3 group"
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center opacity-70 py-10">
+             <div className="grid grid-cols-2 gap-2 w-full max-w-sm px-4 mt-4">
+              {['Say Hi 👋', 'I love you ❤️', 'Miss me? 🥺', 'Wanna fight? 😤'].map(txt => (
+                <button 
+                  key={txt} 
+                  onClick={() => handleSend(txt)}
+                  className="px-4 py-2 border border-white/10 rounded-xl text-[13px] bg-white/5 hover:bg-white/10 transition-colors active:scale-95 text-white/80"
+                >
+                  {txt}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <AnimatePresence initial={false}>
+              {messages.map((msg, idx) => {
+                const isAssistant = msg.role === 'friday';
+                const nextMessage = messages[idx + 1];
+                const showAvatar = isAssistant && (!nextMessage || nextMessage.role !== 'friday');
+                const isLast = idx === messages.length - 1;
+
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className={cn(
+                      "flex max-w-[85%] items-end gap-2",
+                      msg.role === 'user' ? "flex-row-reverse self-end ml-auto" : "flex-row self-start mr-auto"
+                    )}
                   >
-                    <item.icon className={cn("w-6 h-6", item.color)} />
-                    <span className="text-xs font-medium tracking-wider group-hover:text-pink-400 uppercase">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            messages.map((msg) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={cn(
-                  "flex w-full",
-                  msg.role === 'user' ? "justify-end" : "justify-start"
-                )}
-              >
-                <div className={cn(
-                  "max-w-[85%] md:max-w-[70%] p-4 rounded-2xl border backdrop-blur-md space-y-2",
-                  msg.role === 'user' 
-                    ? "bg-pink-500/10 border-pink-500/30 rounded-tr-none" 
-                    : "bg-pink-950/40 border-pink-500/20 rounded-tl-none"
-                )}>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className={cn("text-[10px] font-bold uppercase tracking-widest", msg.role === 'user' ? 'text-pink-900' : 'text-pink-400')}>
-                      {msg.role === 'user' ? 'Lover' : 'Girlfriend'}
-                    </span>
-                    <span className="text-[9px] text-pink-900 font-mono">
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  
-                  <div className="prose prose-invert prose-rose max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        code({ className, children, ...props }: any) {
-                          const match = /language-(\w+)/.exec(className || '');
-                          const isJS = match && (match[1] === 'javascript' || match[1] === 'js' || match[1] === 'typescript' || match[1] === 'ts');
-                          return (
-                            <div className="relative group/code">
-                              <code className={cn("bg-black/50 p-1 rounded font-mono text-sm", match ? "block p-4 my-2 overflow-x-auto border border-pink-500/20" : "", className)} {...props}>
-                                {children}
-                              </code>
-                              {isJS && (
-                                <button onClick={() => runJS(String(children).replace(/\n$/, ''))} className="absolute top-4 right-4 p-1 rounded bg-pink-500/10 border border-pink-500/30 text-[10px] text-pink-400 opacity-0 group-hover/code:opacity-100 transition-opacity hover:bg-pink-500/20">EXECUTE</button>
-                              )}
-                            </div>
-                          );
-                        }
-                      }}
-                    >
-                      {msg.text.replace(/\[ACTION:.*\]/g, '')}
-                    </ReactMarkdown>
+                    {isAssistant && (
+                      <div className="w-[28px] h-[28px] flex-none mb-1">
+                        {showAvatar ? (
+                          <div className="w-full h-full rounded-full overflow-hidden border border-white/5">
+                            <img src={gfPfp} alt={gfName} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full" />
+                        )}
+                      </div>
+                    )}
+
+                    <div className={cn(
+                      "px-4 py-2 text-[17px] leading-[1.3] break-words shadow-sm relative group message-font",
+                      msg.role === 'user' 
+                        ? "bg-gradient-to-tr from-[#9137cc] via-[#cb20a4] to-[#f7992c] text-white rounded-[20px] rounded-br-[4px]" 
+                        : "bg-[#262626] text-white rounded-[20px] rounded-bl-[4px]"
+                    )}>
+                      <ReactMarkdown
+                         components={{
+                           p: ({children}) => <p className="mb-0">{children}</p>,
+                           code: ({children}) => <code className="bg-black/20 px-1 rounded text-xs">{children}</code>
+                         }}
+                      >
+                        {msg.text.replace(/\[ACTION:.*\]/g, '')}
+                      </ReactMarkdown>
+                      {msg.role === 'user' && isLast && !isThinking && (
+                        <span className="absolute -bottom-5 right-1 text-[10px] text-zinc-500 font-medium">Seen</span>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+            
+            {isThinking && (
+              <div className="flex items-end gap-2 max-w-[85%] self-start mr-auto mt-1">
+                <div className="w-[28px] h-[28px] flex-none mb-1 rounded-full overflow-hidden border border-white/5">
+                  <img src={gfPfp} alt={gfName} className="w-full h-full object-cover" />
+                </div>
+                <div className={cn("px-4 py-3 rounded-[20px] rounded-bl-[4px] shadow-sm", themes[theme].bubble)}>
+                  <div className="flex gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
-              </motion.div>
-            ))
-          )}
-        </AnimatePresence>
-        {isThinking && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-pink-400/50 text-xs font-mono">
-            <Heart className="w-3 h-3 animate-ping text-rose-500" /> Thinking about you...
-          </motion.div>
+              </div>
+            )}
+          </div>
         )}
         <div ref={chatEndRef} />
       </main>
 
-      {terminalOutput.length > 0 && (
-        <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="relative z-20 border-t border-pink-500/20 bg-black/80 backdrop-blur-xl max-h-48 overflow-y-auto">
-          <div className="p-2 border-b border-pink-500/10 flex justify-between items-center px-4 bg-pink-950/20">
-            <span className="text-[10px] font-bold text-pink-500 uppercase tracking-widest flex items-center gap-2"><Terminal className="w-3 h-3" /> System Diagnostics</span>
-            <button onClick={() => setTerminalOutput([])} className="text-[9px] text-pink-700 hover:text-pink-400 uppercase tracking-tighter transition-colors">Clear Buffer</button>
+      {/* Instagram Input Footer */}
+      <footer className={cn("relative z-30 pb-safe transition-colors", themes[theme].bg)}>
+        <div className="p-3 max-w-4xl mx-auto flex items-center gap-3">
+          <div className="w-[44px] h-[44px] rounded-full bg-[#7a42f4] flex items-center justify-center shrink-0 cursor-pointer active:scale-95 transition-transform" onClick={() => setTerminalOutput(prev => [...prev, { id: Date.now().toString(), content: 'Camera opened (Simulated)', type: 'info' }])}>
+            <Camera className="w-6 h-6 text-white" />
           </div>
-          <div className="p-4 font-mono text-xs space-y-1">
-            {terminalOutput.map((log) => (
-              <div key={log.id} className={cn(log.type === 'error' ? "text-red-400" : log.type === 'info' ? "text-pink-600 italic" : "text-pink-100")}>
-                {log.content}
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      <footer className="relative z-10 p-4 md:p-6 border-t border-pink-500/20 backdrop-blur-xl bg-black/40 pb-safe">
-        <div className="max-w-4xl mx-auto flex items-center gap-2 md:gap-4">
-          <button
-            onClick={toggleListening}
-            className={cn(
-              "p-3 md:p-4 rounded-full transition-all duration-300 active:scale-90",
-              isListening ? "bg-red-500/20 border-red-500 ring-4 ring-red-500/20 animate-pulse" : "bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20"
-            )}
-          >
-            {isListening ? <MicOff className="w-5 h-5 md:w-6 md:h-6 text-red-500" /> : <Mic className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />}
-          </button>
-          <div className="flex-1 relative">
+          
+          <div className="flex-1 relative bg-[#121212] rounded-[28px] border border-white/10 flex items-center px-4 py-2 min-h-[44px] focus-within:border-white/20 transition-all">
             <input 
               type="text" 
-              value={input} 
-              onChange={(e) => setInput(e.target.value)} 
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
-              placeholder="Message your girlfriend..." 
-              className="w-full bg-pink-950/20 border border-pink-500/20 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none focus:border-pink-400/50 transition-colors text-pink-100 placeholder:text-pink-900/50 text-sm md:text-base" 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Message..."
+              className="flex-1 bg-transparent border-none outline-none text-[15px] placeholder:text-zinc-500 text-white py-1"
             />
+            {input.trim() ? (
+              <button 
+                onClick={() => handleSend()} 
+                disabled={isThinking}
+                className={cn("ml-3 font-bold disabled:opacity-50 transition-colors text-[14px]", themes[theme].accent)}
+              >
+                Send
+              </button>
+            ) : (
+              <div className="flex items-center gap-3.5 ml-3 text-white">
+                <button onClick={toggleListening} className={isListening ? "text-red-500" : "text-white"}><Mic className="w-5 h-5" /></button>
+                <button onClick={() => fileInputRef.current?.click()} className="text-white"><Image className="w-5 h-5" /></button>
+                <button className="text-white"><Smile className="w-5 h-5" /></button>
+                <button className="text-white"><PlusCircle className="w-5 h-5" /></button>
+              </div>
+            )}
           </div>
-          <button 
-            onClick={() => handleSend()} 
-            disabled={!input.trim() || isThinking} 
-            className="p-3 md:p-4 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-90"
-          >
-            <Send className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />
-          </button>
-        </div>
-        <div className="mt-3 md:mt-4 flex justify-center gap-4 md:gap-6">
-          <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Heart className="w-2.5 h-2.5 md:w-3 md:h-3" /> Caring</div>
-          <div className="flex items-center gap-1.5 md:gap-2 text-[8px] md:text-[10px] text-pink-900 uppercase font-bold tracking-widest"><Zap className="w-2.5 h-2.5 md:w-3 md:h-3" /> 100% Love</div>
         </div>
       </footer>
     </div>

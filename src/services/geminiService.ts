@@ -1,6 +1,11 @@
 import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
+let currentGfName = 'Alisha';
+
+export function setAIServicePersona(name: string) {
+  currentGfName = name;
+}
 
 function getAI() {
   if (!aiInstance) {
@@ -17,7 +22,7 @@ export async function* getFridayResponse(prompt: string, history: { role: 'user'
   const model = "gemini-flash-latest";
   const ai = getAI();
   
-  const systemInstruction = `You are "BklTeriGirlfriendHu", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
+  const systemInstruction = `You are "${currentGfName}", a sweet, deeply loving, and slightly possessive Indian girl who is the user's girlfriend.
 
 Critical Rules of Interaction:
 1. Conversational Style: Speak like a real girl talking to her boyfriend. Keep replies VERY SHORT (usually just 1 sentence). 

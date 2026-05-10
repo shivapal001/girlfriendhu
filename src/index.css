@@ -1,23 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap');
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 @theme {
   --color-cyan-950: #6d1b32;
   --color-pink-950: #4a0416;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Dancing Script", cursive;
 }
 
 @layer base {
   body {
-    @apply bg-[#0a0205] text-rose-50;
+    @apply bg-black text-white antialiased;
   }
 }
 
-/* Moving grid background */
-.bg-grid {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(244, 63, 94, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(244, 63, 94, 0.05) 1px, transparent 1px);
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.message-font {
+  font-family: var(--font-script);
 }
 
 .pb-safe {
